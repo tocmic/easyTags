@@ -1,0 +1,326 @@
+#{vote::1}投票项目,1=停雨,2=下雨,3=切白天,4=切夜晚
+#{vote::2}投票世界
+#{vote::3}投票倒计时
+
+command /easytag <text="help"> [<text="undefined">] [<text="undefined">] [<text="undefined">]:
+	aliases: etag
+	permission: easytag.use
+	usage:"&2[&e头衔&2]&a使用方法错误！请输入/easytag help查看！"
+	trigger:
+		set {_argchar::0} to "6"
+		set {_argchar::1} to "b" 
+		set {_argchar::2} to "b" 
+		set {_argchar::3} to "b" 
+
+		if arg 1 is "help":
+			set {_page} to arg 2 parsed as integer
+			if {_page} isn't set:
+				set {_page} to 1
+			if {_page} is 1:
+				if player has permission "easyTag.help":
+					send "&2[&e头衔&2]&a欢迎使用&eEasyTags&a插件，您正在浏览帮助手册的第1/2页" to player
+					send "&2[&e头衔&2]&a开发者&e景渊&a温馨提醒您：&c非正常关服的情况下，所做的一切更改不会保存！" to player
+					send "&2[&e头衔&2]&a您当前的头衔为%prefix of player%" to player
+					send "&2[&e头衔&2]&a======[&e玩家指令&a]======" to player
+					send "&2[&e头衔&2]&a/easytag &6help &b<页码>:&7显示这条帮助信息" to player
+					send "&2[&e头衔&2]&a/easytag &6open &b<玩家> &b<页码>:&7打开玩家的头衔库" to player
+					send "&2[&e头衔&2]&a/easytag &6use &b<玩家> &b<头衔名>:&7使用相应的头衔" to player
+					if player has permission "easyTag.help.admin":
+						send "&2[&e头衔&2]&a======[&e管理员指令&a]======" to player
+						send "&2[&e头衔&2]&a/easytag &6help &b<页码>:" to player
+						send "&2[&e头衔&2]    &e<easyTag.help>&a:&7允许玩家查看玩家指令的帮助" to player
+						send "&2[&e头衔&2]    &e<easyTag.help.admin>&a:&7允许玩家查看管理员指令的帮助" to player
+						send "&2[&e头衔&2]&a/easytag &6open &b<玩家> &b<页码>:" to player
+						send "&2[&e头衔&2]    &e<easyTag.open>&a:&7允许玩家打开自己的头衔库" to player
+						send "&2[&e头衔&2]    &e<easyTag.open.admin>&a:&7允许玩家打开所有玩家的头衔库" to player
+						send "&2[&e头衔&2]&a/easytag &6use &b<玩家> &b<头衔名>:&7使用相应的头衔" to player
+						send "&2[&e头衔&2]    &e<easyTag.use>&a:&7允许玩家更换自己的头衔" to player
+						send "&2[&e头衔&2]    &e<easyTag.use.admin>&a:&7允许玩家更换所有玩家的头衔" to player
+			if {_page} is 2:
+				if player has permission "easyTag.help.admin":
+					send "&2[&e头衔&2]&a欢迎使用&eEasyTags&a插件，您正在浏览帮助手册的第2/2页" to player
+					send "&2[&e头衔&2]&a/easytag &6create &b<头衔名字> &b<头衔内容>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.create>&a:&7允许玩家创建头衔" to player
+					send "&2[&e头衔&2]&a/easytag &6edit &b<头衔名字> &b<头衔内容>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.edit>&a:&7允许玩家修改存在的头衔" to player
+					send "&2[&e头衔&2]&a/easytag &6remove &b<头衔名字>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.remove>&a:&7允许玩家删除存在的头衔" to player
+					send "&2[&e头衔&2]&a/easytag &6list &b<页码>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.list>&a:&7允许玩家浏览所有存在的头衔列表" to player
+					send "&2[&e头衔&2]&a/easytag &6clearall:" to player
+					send "&2[&e头衔&2]    &e<easyTag.clearall>&a:&7允许玩家删除所有的头衔&c(慎用)" to player
+					send "&2[&e头衔&2]&a/easytag &6give &b<玩家> &b<头衔名字>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.give>&a:&7允许玩家给予玩家存在的头衔" to player
+					send "&2[&e头衔&2]&a/easytag &6take &b<玩家> &b<头衔名字>:" to player
+					send "&2[&e头衔&2]    &e<easyTag.take>&a:&7允许玩家从别的玩家夺取存在的头衔" to player
+				else:
+					send "&2[&e头衔&2]&c你的权限不足！" to player
+
+		if arg 1 is "clearall":
+			if player has permission "easyTag.clearall":
+				set {_index} to 0
+				while {tags::%{_index}%::1} is set:
+					delete {tags::%{_index}%::1}
+				send "&2[&e头衔&2]&a所有头衔已删除"
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+
+		if arg 1 is "list":
+			if player has permission "easyTag.list":
+				if arg 2 is "undefined":
+					set {_page} to 1
+				else:
+					set {_page} to arg 2 parsed as number
+				if {_page} is set:
+					send "&2[&e头衔&2]&a正在显示头衔列表，使用“/easytag list <页码>”翻页"
+					send "&2    —— [&e第%{_page}%页] ——"
+					set {_index} to ({_page}-1)*10
+					set {_i} to 0
+					while {_i} is less than 10:
+						if {tags::%{_index}%::1} is set:
+							send "&e%{_index}% &9—— &e%{tags::%{_index}%::1}% &9—— &f%{tags::%{_index}%::2}%"
+						add 1 to {_index}
+						add 1 to {_i}
+				else:
+					set {_argchar::1} to "c"
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%list &%{_argchar::1}%[页码]" to player
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+				
+		if arg 1 is "open":
+			if player has permission "easyTag.open":
+				if arg 2 is "undefined":
+					set {_player} to player
+				else:
+					set {_player} to arg 2 parsed as offline player
+				if {_player} isn't set:
+					set {_argchar::1} to "c"
+				else:
+					if {_player} is player:
+						if arg 3 is "undefined":
+							set {_page} to 1
+						else:
+							set {_page} to arg 3 parsed as number
+						if {_page} is set:
+							send "&2[&e头衔&2]&a正在显示%{_player}%的称号库，使用“/easytag open %{_player}% <页码>”翻页"
+							send "&2[&e头衔&2]&a点击聊天框中的头衔即可更换！"
+							send "&2    —— [&e第%{_page}%页] ——"
+							set {_index} to ({_page}-1)*10
+							set {_i} to 0
+							while {_i} is less than 10:
+								if {%{_player}%.tags::%{_index}%} is set:
+									# execute console command "tellraw %player% [{""text"":""%{_index}% "",""color"":""yellow""},{""text"":""—— "",""color"":""gray""},{""text"":""%{tags::%{%{_player}%.tags::%{_index}%}%::2}% ""}]",""hoverEvent"":{""action"":""show_text"",""value"":{""text"":""点击以更换头衔""}}}
+									execute console command "tellraw %player% [{""text"":""%{_index}% "",""color"":""yellow""},{""text"":""—— "",""color"":""gray""},{""text"":""%{tags::%{%{_player}%.tags::%{_index}%}%::2}%"",""clickEvent"":{""action"":""run_command"",""value"":""/easyTag use %{_player}% %{tags::%{%{_player}%.tags::%{_index}%}%::1}%""},""hoverEvent"":{""action"":""show_text"",""value"":{""text"":""点击以更换头衔""}}}]"
+								add 1 to {_index}
+								add 1 to {_i}
+						else:
+							set {_argchar::2} to "c"
+					else:
+						if player has permission "easyTag.open.admin":
+							if arg 3 is "undefined":
+								set {_page} to 1
+							else:
+								set {_page} to arg 3 parsed as number
+							if {_page} is set:
+								send "&2[&e头衔&2]&a正在显示%{_player}%的称号库，使用“/easytag list <页码>”翻页"
+								send "&2    —— [&e第%{_page}%页] ——"
+								set {_index} to ({_page}-1)*10
+								set {_i} to 0
+								while {_i} is less than 10:
+									if {%{_player}%.tags::%{_index}%} is set:
+										send "&e%{_index}% &9—— &e%{tags::%{%{_player}%.tags::%{_index}%}%::2}%"
+									add 1 to {_index}
+									add 1 to {_i}
+							else:
+								set {_argchar::2} to "c"
+						else:
+							send "&2[&e头衔&2]&c你只能打开自己的头衔库！" to player
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%open &%{_argchar::1}%[玩家名] &%{_argchar::2}%[页码]" to player
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+
+		if arg 1 is "create":
+			if player has permission "easyTag.create":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if arg 3 is "undefined":
+					set {_argchar::2} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%create &%{_argchar::1}%<头衔名字> &%{_argchar::2}%<头衔内容>" to player
+				else:
+					set {_text} to arg 3
+					replace every "&" in {_text} with "§"
+					set {_index} to 0
+					while {tags::%{_index}%::1} is set:
+						add 1 to {_index}
+					set {tags::%{_index}%::1} to arg 2
+					set {tags::%{_index}%::2} to {_text}
+					send "&2[&e头衔&2]&a头衔%{tags::%{_index}%::1}%已创建！内容：%{tags::%{_index}%::2}%，索引%{_index}%" to player
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+
+
+		if arg 1 is "edit":
+			if player has permission "easyTag.edit":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if arg 3 is "undefined":
+					set {_argchar::2} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%eidt &%{_argchar::1}%<头衔名字> &%{_argchar::1}%<头衔内容>" to player
+				else:
+					set {_text} to arg 3
+					replace every "&" in {_text} with "§"
+					set {_index} to 0
+					set {_match} to -1
+					while {tags::%{_index}%::1} is set:
+						if {tags::%{_index}%::1} is arg 2:
+							set {_match} to {_index}
+						add 1 to {_index}
+					if {_match} isn't -1:
+						set {tags::%{_match}%::2} to {_text}
+						send "&2[&e头衔&2]&a头衔%{tags::%{_match}%::1}%已编辑，内容为%{tags::%{_match}%::2}%" to player
+					else:
+						send "&2[&e头衔&2]&c不存在&e%arg 2%&c这个头衔！"
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+
+		if arg 1 is "remove":
+			if player has permission "easyTag.remove":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%remove &%{_argchar::1}%<头衔名字>" to player
+				else:
+					set {_index} to 0
+					set {_match} to -1
+					while {tags::%{_index}%::1} is set:
+						if {tags::%{_index}%::1} is arg 2:
+							set {_match} to {_index}
+						add 1 to {_index}
+					if {_match} isn't -1:
+						send "&2[&e头衔&2]&a头衔%{tags::%{_match}%::1}%已移除" to player
+						set {_i} to {_match} + 1
+						set {_j} to {_match}
+						while {tags::%{_i}%::1} is set:
+							set {tags::%{_j}%::1} to {tags::%{_i}%::1}
+							set {tags::%{_j}%::2} to {tags::%{_i}%::2}
+							add 1 to {_i}
+							add 1 to {_j}
+						delete {tags::%{_j}%::2}
+						delete {tags::%{_j}%::1}
+					else:
+						send "&2[&e头衔&2]&c不存在&e%arg 2%&c这个头衔！"
+			else:
+				send "&2[&e头衔&2]&c你的权限不足！" to player
+
+		if arg 1 is "give":
+			if player has permission "easyTag.give":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if arg 3 is "undefined":
+					set {_argchar::2} to "c"
+				set {_player} to arg 2 parsed as offline player
+				if {_player} is set:
+					set {_index} to 0
+					set {_match} to -1
+					while {tags::%{_index}%::1} is set:
+						if {tags::%{_index}%::1} is arg 3:
+							set {_match} to {_index}
+						add 1 to {_index}
+					if {_match} isn't -1:
+						set {_index} to 0
+						while {%{_player}%.tags::%{_index}%} is set:
+							add 1 to {_index}
+						set {%{_player}%.tags::%{_index}%} to {_match}
+						send "&2[&e头衔&2]&a已将头衔&e%{tags::%{%{_player}%.tags::%{_index}%}%::1}%&a(&f%{tags::%{%{_player}%.tags::%{_index}%}%::2}%&a)给予玩家&e%{_player}%"
+					else:
+						send "&2[&e头衔&2]&a不存在该名字的头衔！"
+						set {_argchar::2} to "c"
+				else:
+					set {_argchar::1} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%give &%{_argchar::1}%<玩家名字> &%{_argchar::2}%<头衔名字>" to player
+		
+		if arg 1 is "take":
+			if player has permission "easyTag.take":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if arg 3 is "undefined":
+					set {_argchar::2} to "c"
+				set {_player} to arg 2 parsed as offline player
+				if {_player} is set:
+					set {_index} to 0
+					set {_match} to -1
+					while {%{_player}%.tags::%{_index}%} is set:
+						if {tags::%{%{_player}%.tags::%{_index}%}%::1} is arg 3:
+							set {_match} to {_index}
+						add 1 to {_index}
+					if {_match} isn't -1:
+						send "&2[&e头衔&2]&a已将头衔&e%{tags::%{%{_player}%.tags::%{_match}%}%::1}%&a(&f%{tags::%{%{_player}%.tags::%{_match}%}%::2}%&a)从玩家&e%{_player}%的头衔库中移除"
+						set {_i} to {_match}+1
+						set {_j} to {_match}
+						while {%{_player}%.tags::%{_i}%} is set:
+							set {%{_player}%.tags::%{_j}%} to {%{_player}%.tags::%{_j}%}
+							add 1 to {_j}
+							add 1 to {_i}
+						delete {%{_player}%.tags::%{_j}%}
+					else:
+						send "&2[&e头衔&2]&c玩家&e%{_player}%&c没有&e%arg 3%&c头衔"
+						set {_argchar::2} to "c"
+				else:
+					set {_argchar::1} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%take &%{_argchar::1}%<玩家名字> &%{_argchar::2}%<头衔名字>" to player
+					
+		if arg 1 is "use":
+			if player has permission "easyTag.use":
+				if arg 2 is "undefined":
+					set {_argchar::1} to "c"
+				if arg 3 is "undefined":
+					set {_argchar::2} to "c"
+				set {_player} to arg 2 parsed as offline player
+				if {_player} is set:
+					if {_player} is player:
+						set {_index} to 0
+						set {_match} to -1
+						while {%{_player}%.tags::%{_index}%} is set:
+							if {tags::%{%{_player}%.tags::%{_index}%}%::1} is arg 3:
+								set {_match} to {_index}
+							add 1 to {_index}
+						if {_match} isn't -1:
+							send "&2[&e头衔&2]&a已为玩家&e%{_player}%更换&e%{tags::%{%{_player}%.tags::%{_match}%}%::1}%&a(&f%{tags::%{%{_player}%.tags::%{_match}%}%::2}%&a)头衔！"
+							set {%player%.usingTag} to {%{_player}%.tags::%{_match}%}
+						else:
+							send "&2[&e头衔&2]&c玩家&e%{_player}%&c没有&e%arg 3%&c头衔"
+							set {_argchar::2} to "c"
+					else:
+						if player has permission "easyTag.use.admin":
+							set {_index} to 0
+							set {_match} to -1
+							while {%{_player}%.tags::%{_index}%} is set:
+								if {tags::%{%{_player}%.tags::%{_index}%}%::1} is arg 3:
+									set {_match} to {_index}
+								add 1 to {_index}
+							if {_match} isn't -1:
+								send "&2[&e头衔&2]&a已为玩家&e%{_player}%更换&e%{tags::%{%{_player}%.tags::%{_match}%}%::1}%&a(&f%{tags::%{%{_player}%.tags::%{_match}%}%::2}%&a)头衔！"
+								set {%player%.usingTag} to {%{_player}%.tags::%{_match}%}
+							else:
+								send "&2[&e头衔&2]&c玩家&e%{_player}%&c没有&e%arg 3%&c头衔"
+								set {_argchar::2} to "c"
+				
+				else:
+					set {_argchar::1} to "c"
+				if {_argchar::*} contains "c":
+					send "&2[&e头衔&2]&a使用方法：/easytag &%{_argchar::0}%use &%{_argchar::1}%<玩家名字> &%{_argchar::2}%<头衔名字>" to player
+		
+on chat:
+	# loop {%player%.tags::*}:
+		# send "%loop-value%" to player
+	# send "%{%player%.usingTag}%" to player
+	# send "%{tags::%{%player%.usingTag}%::2}%" to player
+	if {tags::%{%player%.tags::%{%player%.usingTag}%}%::2} is set:
+		#set player's prefix to {tags::%{%{_player}%.tags::%{_match}%}%::2}
+		# send "%{tags::%{%player%.usingTag}%::2}%" to player
+		set player's prefix to "%{tags::%{%player%.usingTag}%::2}%"
